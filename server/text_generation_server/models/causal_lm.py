@@ -15,7 +15,12 @@ from text_generation_server.models.types import (
     GeneratedText,
 )
 from text_generation_server.pb import generate_pb2
-from text_generation_server.utils import NextTokenChooser, StoppingCriteria, Sampling
+from text_generation_server.utils import (
+    NextTokenChooser,
+    StoppingCriteria,
+    Sampling,
+    is_torch_npu_available,
+)
 
 tracer = trace.get_tracer(__name__)
 
@@ -492,6 +497,9 @@ class CausalLM(Model):
         if torch.cuda.is_available():
             device = torch.device("cuda")
             dtype = torch.float16 if dtype is None else dtype
+        elif is_torch_npu_available():
+            device = torch.device("npu")
+            dtype = torch.float16 if dtype is None else dtype
         else:
             if quantize:
                 raise ValueError("quantization is not available on CPU")
@@ -524,6 +532,8 @@ class CausalLM(Model):
             and quantize != "bitsandbytes"
         ):
             model = model.cuda()
+        elif is_torch_npu_available():
+            model = model.npu()
 
         if tokenizer.pad_token_id is None:
             if model.config.pad_token_id is not None:
