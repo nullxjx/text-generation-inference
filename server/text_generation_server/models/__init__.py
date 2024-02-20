@@ -8,7 +8,6 @@ from typing import Optional
 from text_generation_server.utils.speculate import get_speculate, set_speculate
 from text_generation_server.models.model import Model
 from text_generation_server.models.causal_lm import CausalLM
-from text_generation_server.models.flash_causal_lm import FlashCausalLM
 from text_generation_server.models.bloom import BLOOMSharded
 from text_generation_server.models.mpt import MPTSharded
 from text_generation_server.models.seq2seq_lm import Seq2SeqLM
@@ -33,7 +32,6 @@ __all__ = [
     "Model",
     "BLOOMSharded",
     "CausalLM",
-    "FlashCausalLM",
     "GalacticaSharded",
     "Seq2SeqLM",
     "SantaCoder",
@@ -162,7 +160,7 @@ def get_model(
         logger.info(f"Using speculation {method} with {speculate} input ids.")
 
     model_type = config_dict["model_type"]
-
+    logger.info(f"model_type: {model_type}")
     if model_type == "gpt_bigcode":
         if FLASH_ATTENTION:
             return FlashSantacoderSharded(
