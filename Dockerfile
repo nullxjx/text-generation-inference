@@ -1,10 +1,21 @@
 # Rust builder
-FROM lukemathwalker/cargo-chef:latest-rust-1.75 AS chef
+#FROM lukemathwalker/cargo-chef:latest-rust-1.75 AS chef
+
+
+FROM thexjx/ascend_pytorch_x86:2.0.1 AS chef
+
+# 安装Rust和cargo-chef
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    export PATH=$HOME/.cargo/bin:$PATH && \
+    rustup install 1.75.0 && rustup default 1.75.0 && cargo install cargo-chef
+
 WORKDIR /usr/src
 
 ARG CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 FROM chef as planner
+ENV PATH=/root/.cargo/bin:$PATH
+
 COPY Cargo.toml Cargo.toml
 COPY rust-toolchain.toml rust-toolchain.toml
 COPY proto proto
@@ -15,6 +26,9 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 
+ENV PATH=/root/.cargo/bin:$PATH
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends unzip
+
 ARG GIT_SHA
 ARG DOCKER_LABEL
 
@@ -23,6 +37,10 @@ RUN PROTOC_ZIP=protoc-21.12-linux-x86_64.zip && \
     unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
     unzip -o $PROTOC_ZIP -d /usr/local 'include/*' && \
     rm -f $PROTOC_ZIP
+
+RUN apt-get update && \
+    apt-get install -y openssl libssl-dev pkg-config && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=planner /usr/src/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
@@ -250,5 +268,5 @@ ENTRYPOINT ["./entrypoint.sh"]
 # Final image
 FROM base
 
-ENTRYPOINT ["text-generation-launcher"]
-CMD ["--json-output"]
+ENTRYPOINT ["bash"]
+#CMD ["--json-output"]
