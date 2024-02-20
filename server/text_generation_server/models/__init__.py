@@ -8,7 +8,6 @@ from typing import Optional
 from text_generation_server.utils.speculate import get_speculate, set_speculate
 from text_generation_server.models.model import Model
 from text_generation_server.models.causal_lm import CausalLM
-from text_generation_server.models.flash_causal_lm import FlashCausalLM
 from text_generation_server.models.bloom import BLOOMSharded
 from text_generation_server.models.mpt import MPTSharded
 from text_generation_server.models.seq2seq_lm import Seq2SeqLM
@@ -175,6 +174,7 @@ def get_model(
         logger.info(f"Using speculation {method} with {speculate} input ids.")
 
     model_type = config_dict.get("model_type", None)
+    logger.info(f"model_type: {model_type}")
     if model_type is None:
         # TODO: fix how we determine model type for Mamba
         if "ssm_cfg" in config_dict:

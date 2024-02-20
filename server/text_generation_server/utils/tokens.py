@@ -403,6 +403,10 @@ class HeterogeneousNextTokenChooser:
 
 class Sampling:
     def __init__(self, seed: int, device: str = "cpu"):
+        # @jasinxie 2024.02.28 现在必须写死位cpu
+        # 否则会出现 q = torch.empty_like(probs).exponential_(1, generator=self.generator) 一行代码中
+        # torch.empty_like(probs) 和 self.generator 不在同一个设备上面的报错
+        device = "cpu"
         self.generator = torch.Generator(device)
         self.generator.manual_seed(seed)
         self.seed = seed
