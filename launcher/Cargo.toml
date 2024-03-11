@@ -9,6 +9,7 @@ homepage.workspace = true
 [dependencies]
 clap = { version = "4.4.5", features = ["derive", "env"] }
 ctrlc = { version = "3.4.1", features = ["termination"] }
+# 解决编译报错
 nix = { version = "0.27.1", features = ["signal", "process"] }
 serde = { version = "1.0.188", features = ["derive"]  }
 serde_json = "1.0.107"
