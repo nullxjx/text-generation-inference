@@ -169,6 +169,7 @@ def get_model(
         logger.info(f"Using speculation {method} with {speculate} input ids.")
 
     model_type = config_dict.get("model_type", None)
+    logger.info(f"model_type: {model_type}")
     if model_type is None:
         # TODO: fix how we determine model type for Mamba
         if "ssm_cfg" in config_dict:
